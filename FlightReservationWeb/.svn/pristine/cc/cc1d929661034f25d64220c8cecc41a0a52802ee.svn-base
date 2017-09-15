@@ -1,0 +1,156 @@
+package com.bcj.flightticket.controller;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import com.bcj.flightticket.modal.Address;
+import com.bcj.flightticket.modal.BookingInfo;
+import com.bcj.flightticket.modal.Customer;
+import com.bcj.flightticket.modal.Ticket;
+import com.bcj.flightticket.modal.CreditCard;
+import com.bcj.flightticket.modal.User;
+import com.bcj.flightticket.service.FlightTicketService;
+
+/**
+ * Servlet implementation class RegistrationServlet
+ */
+@WebServlet("/RegistrationServlet")
+public class FlightTicketServlet extends HttpServlet {
+	private static final long serialsVersionUID = 1L;
+
+	/**
+	 * @see HttpServlet#HttpServlet()
+	 */
+	public FlightTicketServlet() {
+		super();
+	}
+
+	/**
+	 * @see HttpServlet#doGet(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doGet(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		response.getWriter().append("Served at: ").append(request.getContextPath());
+	}
+
+	/**
+	 * @see HttpServlet#doPost(HttpServletRequest request, HttpServletResponse
+	 *      response)
+	 */
+	protected void doPost(HttpServletRequest request, HttpServletResponse response)
+			throws ServletException, IOException {
+		doGet(request, response);
+
+		// created an Object for service class
+		FlightTicketService fs = new FlightTicketService();
+
+		// assign all the input values to Entity Classes
+		Address addr = new Address();
+		addr.setAddressLine1(request.getParameter("addressline1"));
+		addr.setAddressLine2(request.getParameter("addressline2"));
+		addr.setCity(request.getParameter("city"));
+		addr.setState(request.getParameter("state"));
+		addr.setZip(request.getParameter("zip"));
+
+		Ticket t = new Ticket();
+		t.setTravelType(request.getParameter("journeytype"));
+		t.setDeparture(request.getParameter("from"));
+		t.setDestination(request.getParameter("to"));
+		t.setTravelDate(request.getParameter("date"));
+
+		if ("roundtrip".equals(t.getTravelType())) {
+			t.setReturnDeparture(request.getParameter("returnfrom"));
+			t.setReturnDestination(request.getParameter("returnto"));
+			t.setReturnTravelDate(request.getParameter("returndate"));
+		}
+
+		BookingInfo bi = new BookingInfo();
+		bi.setItenaryID(fs.generateItinerary());
+		bi.setbRefNumber(fs.generateFlightBookingReference());
+		bi.setFare(request.getParameter("fare"));
+		bi.setTicket(t);
+
+		CreditCard pmnt = new CreditCard();
+		pmnt.setCardNumber((request.getParameter("cardnumber")));
+		pmnt.setNameOnCard(request.getParameter("nameoncard"));
+		pmnt.setExpireDate(request.getParameter("expiredate"));
+		pmnt.setCvv((request.getParameter("cvv")));
+		pmnt.setTicketFare((request.getParameter("fare")));
+
+		User usr = new User();
+		usr.setUserName(request.getParameter("username"));
+		usr.setPassword(request.getParameter("password"));
+
+		Customer cust = new Customer();
+		cust.setFirstName(request.getParameter("firstname"));
+		cust.setLastName(request.getParameter("lastname"));
+		cust.setEmailID(request.getParameter("email"));
+		cust.setPhoneNumber(request.getParameter("phonenumber"));
+		cust.setAddress(addr);
+		cust.setUser(usr);
+		cust.setBookingInfo(bi);
+		cust.setCreditCard(pmnt);
+
+		PrintWriter out = response.getWriter();
+		
+		// to check the given payment credentials
+		String paymentStatus = fs.verifyPayment(cust);
+		//to save card details
+		String savePayment = request.getParameter("savedetails");
+		
+		try {
+			if (paymentStatus.equals("Success"))
+			{
+				System.out.println("Payment status :" + paymentStatus);
+				fs.addCustomer(cust);
+				if (savePayment != null) {
+					System.out.println("save the creditcard credentials into DB");
+					fs.saveCC(cust);
+				}
+				
+				//success response page
+				response.setContentType("text/html");
+				out.print("<h1>Hello,</h1>" + cust.getFirstName() + cust.getLastName()
+						+ "<h1>Your Ticket is booked</h1>");
+				out.println("<h2>your itenary id is:</h2>" + fs.generateItinerary());
+				out.print("<h2>Your reference Number:</h2>" + fs.generateFlightBookingReference());
+				out.println("<h2>Onward Trip Details\n from:</h2>" + cust.getBookingInfo().getTicket().getDeparture()
+						+ "<h2>To:</h2>" + cust.getBookingInfo().getTicket().getDestination() + "<h2>On:</h2>"
+						+ cust.getBookingInfo().getTicket().getTravelDate());
+				out.println("<h2>Return Trip Details\n from:</h2>" + cust.getBookingInfo().getTicket().getReturnDeparture()
+						+ "<h2>To:</h2>" + cust.getBookingInfo().getTicket().getReturnDestination() + "<h2>On:</h2>"
+						+ cust.getBookingInfo().getTicket().getReturnTravelDate());
+				
+				
+			}
+			
+			else if (paymentStatus.equals("Insufficient Balance")) {
+				response.setContentType("text/html");
+				out.println("<h2>Sorry! You don't have enough Balance in Your Card</h2>");
+			} 
+			
+			else if (paymentStatus.equals("Invalid Credentials")) {
+				response.setContentType("text/html");
+				out.println("<h2>Please Check the Credit Card Credentials again!!!</h2>");
+			} 
+			
+			else {
+				response.setContentType("text/html");
+				out.println("<h2>Something went Wrong! Please Try Again</h2>");
+			}
+			
+		}
+		
+		finally {
+			out.close();
+		}
+	}
+
+}

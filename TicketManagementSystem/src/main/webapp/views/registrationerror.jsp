@@ -1,0 +1,28 @@
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+	pageEncoding="ISO-8859-1" isELIgnored="false"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Ticket Management</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" type="image/png"
+	href="http://www.ncat.edu/cost/help-desk/helpdesk.jpg">
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script
+	src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script
+	src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+<style>
+</style>
+</head>
+<body>
+	<jsp:include page="home.jsp" />
+	<script>
+$(window).on("load",function(){$("#registrationModal").modal("show");});
+$("#test1").html("<b>Error Occured In Registration</b>"+"<br/>"+"<b>Please Contact Support Admin</b>");
+$("#test1").css({"text-align":"center","font-size":"200%","background-color":"#999999"});
+</script>
+</body>
+</html>

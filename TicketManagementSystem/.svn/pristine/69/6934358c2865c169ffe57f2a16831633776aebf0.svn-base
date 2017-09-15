@@ -1,0 +1,351 @@
+package com.crmindz.controller;
+
+import java.util.List;
+import javax.servlet.http.HttpSession;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.ui.ModelMap;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import com.crmindz.model.Login;
+import com.crmindz.model.Ticket;
+import com.crmindz.model.User;
+import com.crmindz.service.TicketManagementService;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+/**
+ * @author SivaramaKrishna Linga 
+ * This class acts as controller for the whole application. Every method in this class is invoked based on the requestMapping annotation value.
+ */
+@Controller
+public class TicketManagementController {
+
+	@Autowired
+	TicketManagementService registrationService;
+
+	/**
+	 * @param model
+	 * @return home
+	 * This method return home page.
+	 */
+	@RequestMapping(value = "/home")
+	public String displayHome(Model model) {
+		return "home";
+	}
+
+	/**
+	 * @param user
+	 * @param model
+	 * @return
+	 * 
+	 * This method first validate the email provided by the User by calling the method in service class. If the email is valid, then register the user by sending data to the Service class.
+	 */
+	@RequestMapping(value = "/signup", method = RequestMethod.POST)
+	public String registerUser(User user, Model model) {
+
+		if (registrationService.validateRegistration(user)) {
+			System.out.println("Valid Registration Details..!!");
+			if (registrationService.register(user))
+				return "login";
+			else
+				return "registrationerror";
+		} else {
+			System.out.println("Account Already Exists");
+			return "invalidregistration";
+		}
+	}
+
+	/**
+	 * @param login
+	 * @param model
+	 * @param session
+	 * @return
+	 * This method maps the login credentials entered by the user and set the loginID as sessionAttribute.
+	 * If the login is valid, appropriate display page is shown to the user.
+	 */
+	@RequestMapping(value = "/login", method = RequestMethod.POST)
+	public String login(Login login, ModelMap model, HttpSession session) {
+		System.out.println(login);
+		List<Login> loginDetailsFromDb = registrationService.validateLogin(login);
+		// if the provided email is invalid
+		if (loginDetailsFromDb.isEmpty())
+			return "loginerror";
+		else {
+			//if the email is valid, it checks the correct password.
+			if (login.getPassword().equals(loginDetailsFromDb.get(0).getPassword())) {
+				String sessionID = session.getId();
+				System.out.println(sessionID);
+				
+				//if the login details are correct, allocate login_id as session attribute
+				 session.setAttribute("sloginID", loginDetailsFromDb.get(0).getLoginId());
+				String userType = loginDetailsFromDb.get(0).getUserType();
+				
+				//checking the user type to return proper view
+				if ("student".equals(userType) || "consultant".equals(userType))
+					return "studentloginsuccess";
+				else
+					return "employeeloginsuccess";
+				
+			} else
+				return "loginerror";
+		}
+	}
+
+	/**
+	 * @param ticket
+	 * @param model
+	 * @param session
+	 * @return
+	 * 
+	 * This method return the list of tickets created by the particular User based on ID and convert into Json Format.
+	 */
+	@RequestMapping(value = "/display")
+	@ResponseBody
+	public String retrieveTickets(Ticket ticket, ModelMap model, HttpSession session) {
+		String sessionAttribute = (String) session.getAttribute("sloginID");
+		ticket.setSessionAttribute(sessionAttribute);
+		
+		List<Ticket> listOfTickets = registrationService.displayTicketsByID(ticket);
+		System.out.println(listOfTickets);
+		
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String jsonArray = gson.toJson(listOfTickets);
+		
+		return jsonArray;
+	}
+
+	/**
+	 * @param model
+	 * @param session
+	 * @return
+	 * This method return to the display page of Tickets, if the user is already logged in.
+	 * Otherwise, login page will be displayed.
+	 */
+	@RequestMapping(value = "/ticket", method = RequestMethod.GET)
+	public String displayTicketsByID(ModelMap model, HttpSession session) {
+		String sessionAttribute = (String) session.getAttribute("sloginID");
+		System.out.println(sessionAttribute);
+		if (sessionAttribute != null) {
+			model.put("login", sessionAttribute);
+			return "studentticket";
+		}
+
+		else {
+			System.out.println("Please Login First!!!");
+			return "login";
+		}
+	}
+
+	/**
+	 * @param ticket
+	 * @param model
+	 * @param session
+	 * @return
+	 * 
+	 * This method maps the newly added Ticket details and send it to the Service class method by setting ticket as in pending status.
+	 */
+	@RequestMapping(value = "/addTicket", method = RequestMethod.POST)
+	public String addTikcet(Ticket ticket, Model model, HttpSession session) {
+		String sessionAttribute = (String) session.getAttribute("sloginID");
+		// System.out.println(ticket);
+		
+		if (sessionAttribute != null) {
+			ticket.setSessionAttribute(sessionAttribute);
+			ticket.setTstatus("pending");
+			String ticketNumber = registrationService.generateTicketNumber();
+			ticket.setTicketNumber(ticketNumber);
+			
+			if (registrationService.addTicket(ticket)) {
+				return "studentticket";
+			} else {
+				System.out.println("Problem in adding Ticket");
+				return "home";
+			}
+
+		} else {
+			System.out.println("Please Login First");
+			return "login";
+		}
+	}
+
+	/**
+	 * @param session
+	 * @return
+	 * This method returns to the tickets display page, if the employee is already logged in.
+	 * Otherwise, it returns to the login page.
+	 */
+	@RequestMapping(value = "/showTickets")
+	public String displayAllTickets(HttpSession session) {
+		String sessionAttribute = (String) session.getAttribute("sloginID");
+		//System.out.println(sessionAttribute);
+		if (sessionAttribute != null)
+			return "employeeticket";
+		else {
+			System.out.println("Please Login First!!!");
+			return "login";
+		}
+	}
+
+	/**
+	 * @param ticket
+	 * @param model
+	 * @param session
+	 * @return
+	 * 
+	 * This method Returns list of pending tickets data in the Json Format.
+	 */
+	@RequestMapping(value = "/displayPending")
+	@ResponseBody
+	public String retrievePendingTickets(Ticket ticket, ModelMap model, HttpSession session) {
+		String sessionAttribute = (String) session.getAttribute("sloginID");
+		ticket.setSessionAttribute(sessionAttribute);
+		List<Ticket> pendingTickets = registrationService.displayPending();
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String jsonArray = gson.toJson(pendingTickets);
+		return jsonArray;
+	}
+
+	/**
+	 * This method returns the approved tickets data to the proper ajax call in the employee ticket page.
+	 * 
+	 * @param ticket
+	 * @param model
+	 * @param session
+	 * @return
+	 */
+	@RequestMapping(value = "/displayApproved")
+	@ResponseBody
+	public String retrieveApprovedTickets(Ticket ticket, ModelMap model, HttpSession session) {
+		String sessionAttribute = (String) session.getAttribute("sloginID");
+		ticket.setSessionAttribute(sessionAttribute);
+		List<Ticket> approvedTickets = registrationService.displayApproved();
+	
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String jsonArray = gson.toJson(approvedTickets);
+		return jsonArray;
+	}
+
+	/**
+	 * This method returns the rejected tickets data to the proper ajax call in the employeeticket page
+	 * 
+	 * @param ticket
+	 * @param model
+	 * @param session
+	 * @return
+	 */
+	@RequestMapping(value = "/displayRejected")
+	@ResponseBody
+	public String retrieveRejectedTickets(Ticket ticket, ModelMap model, HttpSession session) {
+		String sessionAttribute = (String) session.getAttribute("sloginID");
+		ticket.setSessionAttribute(sessionAttribute);
+		List<Ticket> rejectedTickets = registrationService.displayRejected();
+		
+		Gson gson = new GsonBuilder().setPrettyPrinting().create();
+		String jsonArray = gson.toJson(rejectedTickets);
+		return jsonArray;
+	}
+
+	/**
+	 * This method changes the ticket status to approved and send updated information of the ticket to the service class. 
+	 * @param ticket
+	 * @param model
+	 * @param session
+	 * @return
+	 */
+	@RequestMapping(value = "/approveTicket", method = RequestMethod.POST)
+	public String approveTicket(Ticket ticket, Model model, HttpSession session) {
+		String sessionAttribute = (String) session.getAttribute("sloginID");
+		if (sessionAttribute != null) {
+			ticket.setSessionAttribute(sessionAttribute);
+			ticket.setTstatus("approved");
+			if (registrationService.approveTicket(ticket)) {
+				return "employeeticket";
+			} else {
+				System.out.println("Problem Occured in Approving Ticket");
+				return "home";
+			}
+		} else {
+			return "login";
+		}
+	}
+
+	/**
+	 * This method changes the ticket status to rejected and send updated information of the ticket to the service class.
+	 * @param ticket
+	 * @param model
+	 * @param session
+	 * @return
+	 */
+	@RequestMapping(value = "/rejectTicket", method = RequestMethod.POST)
+	public String rejectTicket(Ticket ticket, Model model, HttpSession session) {
+		String sessionAttribute = (String) session.getAttribute("sloginID");
+		System.out.println(ticket);
+		if (sessionAttribute != null) {
+			ticket.setSessionAttribute(sessionAttribute);
+			ticket.setTstatus("rejected");
+			if (registrationService.rejectTicket(ticket)) {
+				return "employeeticket";
+			} else {
+				return "home";
+			}
+		} else {
+			return "login";
+		}
+	}
+
+	/**
+	 * when user click on logout, session gets invalidated and return to the home page.
+	 * 
+	 * @param session
+	 * @return
+	 */
+	@RequestMapping(value = "logout", method = RequestMethod.GET)
+	public String logout(HttpSession session) {
+		session.invalidate();
+		return "home";
+	}
+
+	/**
+	 * This method, return the List of states.
+	 * 
+	 * @return
+	 */
+	@RequestMapping(value = "/getState", method = RequestMethod.GET)
+	@ResponseBody
+	public String getStates() {
+		String listOfStates = registrationService.getStates();
+		return listOfStates;
+	}
+
+	/**
+	 * When student/consultant wants to create ticket, this method provide total
+	 * number of categories coming from the service class.
+	 * @return
+	 */
+	@RequestMapping(value = "/getCategories", method = RequestMethod.GET)
+	@ResponseBody
+	public String getCategories() {
+		String categoryData = registrationService.getCategories();
+		return categoryData;
+	}
+
+	/**
+	 * Based on the category selected, this method retrieve subcategory information
+	 * from the service class.
+	 * 
+	 * @param categoryValue
+	 * @return
+	 */
+	@RequestMapping(value = "/getSubCategories", method = RequestMethod.GET)
+	@ResponseBody
+	public String getSubCategories(String categoryValue) {
+		String subCategoriesData = registrationService.getSubCategories(categoryValue);
+		return subCategoriesData;
+	}
+
+}

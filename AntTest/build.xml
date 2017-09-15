@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project default="clean" basedir=".">
+
+	<property name ="tomcat" value="C:\BootCamp_May17\Downloads\apache-tomcat-9.0.0.M22"/>
+	<property name = "tomcat.deployment" value="${tomcat}/webapps"/>
+	<property name = "tomcat.bin" value ="${tomcat}/bin"/>
+	<property name = "base" value="."/> 
+	
+	<target name="clean">
+		<delete file="${base}/AntTest.war"></delete>
+	<antcall target="warTarget"></antcall>
+	</target>
+
+	<target name = "warTarget">
+		<war warfile="AntTest.war" needxmlfile="false">
+			<fileset dir="${base}/WebContent"/>
+		</war>
+		<antcall target="deployTarget"/>
+	</target>
+
+	<target name="deployTarget">
+		<copy file="${base}/AntTest.war" todir="${tomcat.deployment}"/>
+		<antcall target = "startTomcat"/>
+	</target>
+	<target name="startTomcat">
+		<exec executable="${tomcat.bin}/startup.bat"/>
+	</target>
+	<target name="stopTomcat">
+	<exec executable="${tomcat.bin}/shutdown.bat"/>
+	</target>
+</project>

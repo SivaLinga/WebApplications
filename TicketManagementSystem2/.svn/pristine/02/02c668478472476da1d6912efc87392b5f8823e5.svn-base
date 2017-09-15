@@ -1,0 +1,151 @@
+package com.crmindz.service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.crmindz.dao.TicketManagementDaoImpl;
+import com.crmindz.model.Login;
+import com.crmindz.model.Ticket;
+import com.crmindz.model.User;
+
+@Service
+public class RegistrationService {
+	@Autowired
+	TicketManagementDaoImpl ticketManagementDaoImpl;
+
+	public boolean register(User user) {
+		boolean registrationStatus = false;
+		List<Login> emailVerification = new ArrayList<Login>();
+		emailVerification = ticketManagementDaoImpl.validateRegistration(user);
+		if (emailVerification.isEmpty()) {
+			if (ticketManagementDaoImpl.register(user)) {
+				registrationStatus = true;
+			} else {
+				System.out.println("Problem in Registration");
+				registrationStatus = false;
+			}
+		} else {
+			System.out.println("Account already Exists...!!");
+			registrationStatus = false;
+		}
+		return registrationStatus;
+	}
+	
+
+	public List<Login> validateLogin(Login login) {
+		List<Login>	loginDetailsFromDb = ticketManagementDaoImpl.login(login);
+		return loginDetailsFromDb;
+	}
+
+	
+	public List<Ticket> displayTicketData(Ticket ticket) {
+		List<Ticket> listOfTickets = ticketManagementDaoImpl.displayTicketData(ticket);
+		return listOfTickets;
+	}
+
+	public boolean addTicket(Ticket ticket) {
+		if (ticketManagementDaoImpl.addTicket(ticket)) {
+			return true;
+		} else
+			return false;
+	}
+
+	public List<Ticket> displayPending() {
+		List<Ticket> pendingTickets = new ArrayList<Ticket>();
+		List<Ticket> listOfTickets = ticketManagementDaoImpl.displayAll();
+		for (Ticket ticket : listOfTickets) {
+			if ("pending".equals(ticket.getTstatus())) {
+				pendingTickets.add(ticket);
+			}
+		}
+		return pendingTickets;
+	}
+
+	public List<Ticket> displayApproved() {
+		List<Ticket> pendingTickets = new ArrayList<Ticket>();
+		List<Ticket> listOfTickets = ticketManagementDaoImpl.displayAll();
+		for (Ticket ticket : listOfTickets) {
+			if ("approved".equals(ticket.getTstatus())) {
+				pendingTickets.add(ticket);
+			}
+		}
+		return pendingTickets;
+	}
+
+	public List<Ticket> displayRejected() {
+		List<Ticket> pendingTickets = new ArrayList<Ticket>();
+		List<Ticket> listOfTickets = ticketManagementDaoImpl.displayAll();
+		for (Ticket ticket : listOfTickets) {
+			if ("rejected".equals(ticket.getTstatus())) {
+				pendingTickets.add(ticket);
+			}
+		}
+		return pendingTickets;
+	}
+
+	public boolean approveTicket(Ticket ticket) {
+		if (ticketManagementDaoImpl.processTicket(ticket)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	public boolean rejectTicket(Ticket ticket) {
+		if (ticketManagementDaoImpl.processTicket(ticket)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
+	public String generateTicketNumber()
+	{
+		String SALTCHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+        StringBuilder salt = new StringBuilder();
+        Random rnd = new Random();
+        while (salt.length() < 10) { // length of the random string.
+            int index = (int) (rnd.nextFloat() * SALTCHARS.length());
+            salt.append(SALTCHARS.charAt(index));
+        }
+        String saltStr = salt.toString();
+        return saltStr;
+	}
+
+	public String getStates() {
+		String states = "";
+		List<Map<String, Object>> listOfStates = ticketManagementDaoImpl.getStates();
+		for (Map<String, Object> map : listOfStates) {
+			for (Map.Entry<String, Object> entry : map.entrySet())
+				states += "<option value='" + entry.getValue() + "'>" + entry.getValue() + "</option>";
+		}
+		return states;
+	}
+
+	
+	public String getCategories() {
+		String categoryData = "";
+		List<Map<String, Object>> categories = ticketManagementDaoImpl.getCategoriesList();
+		for (Map<String, Object> map : categories) {
+			for (Map.Entry<String, Object> entry : map.entrySet())
+				categoryData += "<option value='" + entry.getValue() + "'>" + entry.getValue() + "</option>";
+		}
+		return categoryData;
+	}
+
+	public String getSubCategories(String categoryValue) {
+		String subCategoryData = "";
+		List<Map<String, Object>> SubCategories = ticketManagementDaoImpl.getSubCategoriesList(categoryValue);
+		for (Map<String, Object> map : SubCategories) {
+			for (Map.Entry<String, Object> entry : map.entrySet())
+				subCategoryData += "<option value='" + entry.getValue() + "'>" + entry.getValue() + "</option>";
+		}
+		return subCategoryData;
+	}
+
+}

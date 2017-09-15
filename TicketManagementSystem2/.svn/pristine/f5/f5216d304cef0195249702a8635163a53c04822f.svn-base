@@ -1,0 +1,385 @@
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="UTF-8" isELIgnored="false"%>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>TicketManagement</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/png" href="http://www.ncat.edu/cost/help-desk/helpdesk.jpg">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+  
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/redmond/jquery-ui.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.14.0/css/ui.jqgrid.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/free-jqgrid/4.14.0/jquery.jqgrid.min.js"></script>
+<script>
+jQuery(document).ready(function() {
+$("#jqGrid").jqGrid({
+        url : "displayPending",
+        datatype :"json",
+        mtype : 'POST',
+        colNames : [ 'ticketNumber', 'tcategory', 'tsubcategory', 'tdescription','tsatus','comments'],
+        colModel : [ 
+                {
+                        name : 'ticketNumber',
+                        index : 'ticketNumber',
+                        width: 75
+                }, 
+                {
+                        name : 'tcategory',
+                        index : 'tcategory',
+                        width : 150
+                }, 
+                {
+                        name : 'tsubcategory',
+                        index : 'tsubcategory',
+                        width : 150
+                }, 
+                {
+                        name : 'tdescription',
+                        index : 'tdescription',
+                        width : 100
+                },
+                {
+                    name : 'tstatus',
+                    index : 'tstatus',
+                    width : 150
+                },
+                {
+                    name : 'comments',
+                    index : 'comments',
+                    width : 150
+                }
+        
+],
+        loadonce : true,
+        width : 780,
+        height: "100%",
+        rowNum : 10,
+        multiselect : true,
+        pager : '#jqGridPager',
+        rowList : [ 10, 20, 30 ],
+        viewrecords : true,
+        gridview : true,
+        caption : 'Data Report',
+        jsonReader : {
+                repeatitems : false,
+        },
+});
+jQuery("#jqGrid").jqGrid('navGrid', '#jqGridPager',{edit:false,add:false,del:false});
+jQuery("#a1").click( function(){
+	  var id = jQuery("#jqGrid").jqGrid('getGridParam','selrow');
+	  if (id) {
+	    var ret = jQuery("#jqGrid").jqGrid('getRowData',id);
+	    $("#t1").val(ret.ticketNumber);
+	    $("#t2").val(ret.tcategory);
+	    $("#t3").val(ret.tsubcategory);
+	    $("#t4").val(ret.tdescription);
+	  } else { alert("Please select row");}
+	});
+	
+jQuery("#a2").click( function(){
+	  var id = jQuery("#jqGrid").jqGrid('getGridParam','selrow');
+	  if (id) {
+	    var ret = jQuery("#jqGrid").jqGrid('getRowData',id);
+	    $("#t5").val(ret.ticketNumber);
+	    $("#t6").val(ret.tcategory);
+	    $("#t7").val(ret.tsubcategory);
+	    $("#t8").val(ret.tdescription);
+	  } else { alert("Please select row");}
+	});
+
+<!--ApprovedGrid -->
+	$("#jqGrid2").jqGrid({
+	        url : "displayApproved",
+	        datatype :"json",
+	        mtype : 'POST',
+	        colNames : [ 'ticketNumber', 'tcategory', 'tsubcategory', 'tdescription','tsatus','comments'],
+	        colModel : [ 
+	                {
+	                        name : 'ticketNumber',
+	                        index : 'ticketNumber',
+	                        width: 75
+	                }, 
+	                {
+	                        name : 'tcategory',
+	                        index : 'tcategory',
+	                        width : 150
+	                }, 
+	                {
+	                        name : 'tsubcategory',
+	                        index : 'tsubcategory',
+	                        width : 150
+	                }, 
+	                {
+	                        name : 'tdescription',
+	                        index : 'tdescription',
+	                        width : 100
+	                },
+	                {
+	                    name : 'tstatus',
+	                    index : 'tstatus',
+	                    width : 150
+	                },
+	                {
+	                    name : 'comments',
+	                    index : 'comments',
+	                    width : 150
+	                }
+	        
+	],
+	        loadonce : true,
+	        width : 780,
+	        height: "100%",
+	        rowNum : 10,
+	        pager : '#jqGridPager2',
+	        rowList : [ 10, 20, 30 ],
+	        viewrecords : true,
+	        gridview : true,
+	        caption : 'Data Report',
+	        jsonReader : {
+	                repeatitems : false,
+	        },
+	        editurl : "display"
+	});
+	jQuery("#jqGrid2").jqGrid('navGrid', '#jqGridPager2',{edit:false,add:false,del:false});
+<!--RejectedGrid -->
+	$("#jqGrid3").jqGrid({
+	        url : "displayRejected",
+	        datatype :"json",
+	        mtype : 'POST',
+	        colNames : [ 'ticketNumber', 'tcategory', 'tsubcategory', 'tdescription','tsatus','comments'],
+	        colModel : [ 
+	                {
+	                        name : 'ticketNumber',
+	                        index : 'ticketNumber',
+	                        width: 75
+	                }, 
+	                {
+	                        name : 'tcategory',
+	                        index : 'tcategory',
+	                        width : 150
+	                }, 
+	                {
+	                        name : 'tsubcategory',
+	                        index : 'tsubcategory',
+	                        width : 150
+	                }, 
+	                {
+	                        name : 'tdescription',
+	                        index : 'tdescription',
+	                        width : 100
+	                },
+	                {
+	                    name : 'tstatus',
+	                    index : 'tstatus',
+	                    width : 150
+	                },
+	                {
+	                    name : 'comments',
+	                    index : 'comments',
+	                    width : 150
+	                }
+	        
+	],
+	        loadonce : true,
+	        width : 780,
+	        height: "100%",
+	        rowNum : 10,
+	        pager : '#jqGridPager3',
+	        rowList : [ 10, 20, 30 ],
+	        viewrecords : true,
+	        gridview : true,
+	        caption : 'Data Report',
+	        jsonReader : {
+	                repeatitems : false,
+	        },
+	        editurl : "display"
+	});
+	jQuery("#jqGrid3").jqGrid('navGrid', '#jqGridPager3',{edit:false,add:false,del:false});
+	});
+
+</script>
+  
+</head>
+
+
+<body>
+<nav class="navbar navbar-default">
+  <div class="container-fluid">
+    
+    <div class="navbar-header"> 
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#myNavbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>                        
+      </button>
+      <a class="navbar-brand" href="home">Ektha Help Center</a>
+    </div>
+
+    <!--NavbarData -->
+    <div class="collapse navbar-collapse" id="myNavbar">
+      <ul class="nav navbar-nav">
+        <li><a href="home">Home</a></li>
+        <li><a href="showTickets">Tickets DashBoard</a></li>
+      </ul>
+      
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="logout"><span class="glyphicon glyphicon-log-out"></span> LogOut</a></li>
+      </ul>
+    </div>
+
+  </div>
+</nav>  
+
+<div class="container">
+<table id="jqGrid"> </table>
+<div id="jqGridPager"></div>
+<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#approveticket" id="a1">Approve</button>
+<button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#rejectticket" id="a2">Reject</button>
+
+<!--Modal Section -->
+ <form action="approveTicket" method="post">
+<div class="modal fade" id="approveticket" role="dialog">
+<div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        
+        <div class="modal-header text-center">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h3 class="modal-title">Add Comments</h3>
+        </div>
+
+       
+        <div class="modal-body">
+        
+        <div class="form-horizontal">
+
+           <div class="form-group">
+           <label class="control-label col-sm-2" for="ticketNumber">Ticket Number:</label>
+           <div class="col-sm-8">
+           <input type="text" class="form-control" id="t1" placeholder="Auto Generated" name="ticketNumber" readonly>
+          </div>
+          </div>
+          
+          <div class="form-group">
+           <label class="control-label col-sm-2" for="tcategory">Category:</label>
+           <div class="col-sm-8">
+           <input type="text" class="form-control" id="t2" placeholder="Category" name="tcategory" readonly>
+          </div>
+          </div>
+          
+          <div class="form-group">
+           <label class="control-label col-sm-2" for="tsubcategory">SubCategory</label>
+           <div class="col-sm-8">
+           <input type="text" class="form-control" id="t3" placeholder="Sub Category" name="tsubcategory" readonly>
+          </div>
+          </div>
+          
+          <div class="form-group">
+           <label class="control-label col-sm-2" for="tdescription">Description</label>
+           <div class="col-sm-8">
+           <input type="text" class="form-control" id="t4" placeholder="Description" name="tdescription" readonly>
+          </div>
+          </div>
+          
+          <div class="form-group">
+  <label class="control-label col-sm-2" for="comments">Comment:</label>
+  <div class="col-sm-8">
+  <textarea class="form-control" rows="5" id="comments" name="comments"></textarea>
+  </div>
+</div>
+          
+          </div>
+          </div>
+
+      <div class="modal-footer">
+      <div class="row">
+      <div class="col-sm-10"></div>
+      <div class="col-sm-2"><button type="submit" class="btn btn-default">Submit</button></div>
+      </div>
+      </div> 
+      
+      </div>  
+      </div>  
+  </div>
+ </form>
+ 
+ <!--Reject_Model_Section -->
+ <form action="rejectTicket" method="post">
+<div class="modal fade" id="rejectticket" role="dialog">
+<div class="modal-dialog">
+      <!-- Modal content-->
+      <div class="modal-content">
+        
+        <div class="modal-header text-center">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h3 class="modal-title">Add Comments</h3>
+        </div>
+
+       
+        <div class="modal-body">
+        
+        <div class="form-horizontal">
+
+           <div class="form-group">
+           <label class="control-label col-sm-2" for="ticketNumber">Ticket Id:</label>
+           <div class="col-sm-8">
+           <input type="text" class="form-control" id="t5" placeholder="Auto Generated" name="ticketNumber" readonly>
+          </div>
+          </div>
+          
+          <div class="form-group">
+           <label class="control-label col-sm-2" for="tcategory">Category:</label>
+           <div class="col-sm-8">
+           <input type="text" class="form-control" id="t6" placeholder="Category" name="tcategory" readonly>
+          </div>
+          </div>
+          
+          <div class="form-group">
+           <label class="control-label col-sm-2" for="tsubcategory">SubCategory</label>
+           <div class="col-sm-8">
+           <input type="text" class="form-control" id="t7" placeholder="Sub Category" name="tsubcategory" readonly>
+          </div>
+          </div>
+          
+          <div class="form-group">
+           <label class="control-label col-sm-2" for="tdescription">Description</label>
+           <div class="col-sm-8">
+           <input type="text" class="form-control" id="t8" placeholder="Description" name="tdescription" readonly>
+          </div>
+          </div>
+          
+          <div class="form-group">
+  <label class="control-label col-sm-2" for="comments">Comment:</label>
+  <div class="col-sm-8">
+  <textarea class="form-control" rows="5" id="comments" name="comments"></textarea>
+  </div>
+</div>
+          
+          </div>
+          </div>
+
+      <div class="modal-footer">
+      <div class="row">
+      <div class="col-sm-10"></div>
+      <div class="col-sm-2"><button type="submit" class="btn btn-default">Submit</button></div>
+      </div>
+      </div> 
+      
+      </div>  
+      </div>  
+  </div>
+ </form>
+
+<table id="jqGrid2"> </table>
+<div id="jqGridPager2"></div><br><br>
+<table id="jqGrid3"> </table>
+<div id="jqGridPager3"></div>
+</div>
+</body>
+</html>

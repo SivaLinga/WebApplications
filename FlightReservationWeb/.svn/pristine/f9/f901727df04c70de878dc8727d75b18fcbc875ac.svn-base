@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>American AirLines</title>
+	<link rel="icon" 
+      type="image/png" 
+      href="https://lh3.googleusercontent.com/LgrZL84ydVu55EP0Vs0PfHIknH5X9XKo4YG-HM_TVwzMoctId97Ge7u3HpFydq1regg=w300">
+      <style>
+      	body
+      	{
+      		background: url("https://images.studentuniverse.com/new/suwebui/photos/marketing/homepage-flights.jpg") no-repeat fixed;
+      		background-size: 100% 100%;
+
+
+      	}
+      	fieldset
+      	{
+      		font-size: 20px;
+      		font-weight: bold;
+      		text-align:  center;
+      		color: gold ;
+      		border: double 5px darkolivegreen    ;
+      	}
+      	fieldset legend
+      	{
+      		color:gold ;
+      		font-size: 25px;
+      		font-family: Palatino Linotype;
+      	}
+      	input[type="text"] {
+    
+    margin-bottom: 5px;
+    background-color: #E0FFFF  ;
+ 
+    font-weight: bold;
+}
+      	input[type="submit"] {
+      		width: 150px;
+      		height: 50px;
+      		font-size: 22px;
+      		position:relative;
+      		left:300px;
+      		display: block;
+      		color:white;
+      		background-color: dodgerblue;
+      		text-shadow: 1px 1px #E3F10F;
+      		margin-bottom: 30px;
+      	}
+      </style>
+</head>
+
+
+
+<body>
+<div style="float:right;position:fixed; left:725px;"><img src="https://www.aa.com/content/images/chrome/rebrand/aa-logo.png"></div>
+<div style="float:left;">
+<form action="RegistrationServlet" method="post">
+<h1 style="font-size:50px; color:#F4F6F7 display:inline; position:relative;left:50px;">Ticket Booking</h1>
+  <fieldset>
+    <legend>Personal Information:</legend>
+    First name:
+    <input type="text" name="firstname">
+    Last name:
+    <input type="text" name="lastname"><br><br>
+    E-mail:
+    <input type="text" name="email">
+    Phone Number:
+    <input type="text" name="phonenumber"><br><br>
+  </fieldset>
+<br><br>
+  <fieldset>
+    <legend>Contact Information:</legend>
+    Address Line1:
+    <input type="text" name="addressline1"><br><br>
+    Address Line2:
+    <input type="text" name="addressline2"><br><br>
+    City:
+    <input type="text" name="city">
+    State:
+    <input type="text" name="state">
+    Zip:
+    <input type="text" name="zip"><br>
+  </fieldset>
+<br><br>
+  <fieldset>
+    <legend>User Information:</legend>
+    User Name:<br>
+    <input type="text" name="username"><br>
+    PassWord:<br>
+    <input type="text" name="password"><br><br>
+  </fieldset>
+<br><br>
+  <fieldset>
+    <legend>Payment Information:</legend>
+    Card Number:<br>
+    <input type="text" name="cardnumber"><br>
+    Name On Card:<br>
+    <input type="text" name="nameoncard"><br>
+    Expire Date:<br>
+    <input type="text" name="expiredate"><br>
+    CVV:<br>
+    <input type="text" name="cvv"><br><br>
+    <input type="checkbox" name="savedetails"> Save credentials for future
+  </fieldset>
+<br><br>
+  <fieldset>
+    <legend>Travel Information:</legend>
+    
+    <input type="radio" name="journeytype" value="oneway">OneWay
+    <input type="radio" name="journeytype" value="roundtrip" checked>Round Trip<br>
+    <h2 style="display: inline;">Onward:</h2><br>
+    From:
+    <input type="text" name="from">
+    To
+    <input type="text" name="to">
+    Date:
+    <input type="text" name="date"><br>
+    <h2 style="display: inline;">Return:</h2><br>
+    From:
+    <input type="text" name="returnfrom">
+    To
+    <input type="text" name="returnto">
+    Date:
+    <input type="text" name="returndate"><br><br>
+    Fare:
+    <input type="text" name="fare">
+  </fieldset>
+<br><br>
+  <input type="submit" value="BookTicket">
+</form>
+</div>
+</body>
+</html>

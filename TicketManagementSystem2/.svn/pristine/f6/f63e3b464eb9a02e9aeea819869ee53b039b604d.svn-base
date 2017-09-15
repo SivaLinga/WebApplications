@@ -1,0 +1,12 @@
+package com.crmindz.dao;
+
+import java.util.List;
+
+import com.crmindz.model.Login;
+import com.crmindz.model.User;
+
+public interface TicketManagementDao {
+	public boolean register(User user);
+	
+	public List<Login> getLoginDetails(Login login);
+}

@@ -1,0 +1,47 @@
+package com.crmindz.service.test;
+
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.junit.Assert;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.runners.MockitoJUnitRunner;
+
+import com.crmindz.dao.TicketManagementDaoImpl;
+import com.crmindz.model.Login;
+import com.crmindz.service.TicketManagementService;
+
+@RunWith(MockitoJUnitRunner.class)
+public class TicketManagementServiceTest {
+	@InjectMocks
+	private TicketManagementService ticketManaementService;
+	
+	@Mock
+	private TicketManagementDaoImpl ticketManagementDaoImpl;
+	
+	@Test
+	public void validateLoginTest()
+	{
+		List<Login> loginDetails = new ArrayList<Login>();
+		Login login = new Login();
+		login.setEmail("s@mail.com");
+		login.setPassword("s");
+		login.setLoginId("19");
+		login.setUserType("student");
+		loginDetails.add(login);
+		when(ticketManagementDaoImpl.getLoginDetails(Mockito.any(Login.class))).thenReturn(loginDetails);
+		Login loginCredentials = new Login();
+		loginCredentials.setEmail("s@mail.com");
+		loginCredentials.setLoginId("19");
+		loginCredentials.setPassword("s");
+		loginCredentials.setUserType("student");
+		Assert.assertEquals(loginDetails,ticketManaementService.validateLogin(loginCredentials));
+	}
+	
+}
